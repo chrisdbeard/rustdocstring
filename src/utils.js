@@ -30,10 +30,13 @@ const vscode = require('vscode');
  */
 function findNextSignatureBlock(document, startLine) {
     const totalLines = document.lineCount;
-    const signatureStartPattern = /^(pub\s+)?(fn|struct|enum|trait)\s+/;
+    const signatureStartPattern = /^(?:pub\s+)?(?:unsafe\s+)?(?:async\s+)?(fn|struct|enum)\s+/;
 
     let signatureLines = [];
     let collecting = false;
+    let braceDepth = 0;
+    let parentDepth = 0;
+    let itemType = null;
 
     for (let i = startLine + 1; i < totalLines; i++) {
         const line = document.lineAt(i).text.trim();
@@ -41,17 +44,33 @@ function findNextSignatureBlock(document, startLine) {
         // Skip empty lines and attributes
         if (!collecting && (line === '' || line.startsWith('#['))) continue;
 
-        // Start collecting once we match an item keyword
-        if (!collecting && signatureStartPattern.test(line)) {
+        const match = signatureStartPattern.exec(line);
+        if (!collecting && match) {
+            itemType = match[1]; // 'fn', 'struct', etc..
             collecting = true;
         }
 
         if (collecting) {
             signatureLines.push(line);
 
-            // Stop at function or struct start (`{`, `;`, `=>`)
-            if (line.endsWith('{') || line.endsWith(';') || line.endsWith('=>')) {
-                break;
+            if (itemType === 'fn') {
+                // Stop at function or struct start (`{`, `;`, `=>`)
+                if (line.endsWith('{') || line.endsWith(';') || line.endsWith('=>')) {
+                    break;
+                }
+            } else {
+                // Track braces and parens for body parsing
+                for (const char of line) {
+                    if (char === '{') braceDepth++;
+                    if (char === '}') braceDepth--;
+                    if (char === '(') parentDepth++;
+                    if (char === ')') parentDepth--;
+                }
+
+                // Stop collecting when body is fully closed or ends with semicolon
+                if ((braceDepth === 0 && parentDepth === 0 && (line.endsWith('}') || line.endsWith(';')))) {
+                    break;
+                }
             }
         }
     }

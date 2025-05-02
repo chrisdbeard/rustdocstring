@@ -1,15 +1,49 @@
 /**
- * Generates a Rust doc comment template for a function definition.
- * The output follows idiomatic Rust documentation style, with sections
- * for description, arguments, return value, examples, and errors.
+ * Dispatcher for generating Rust doc comments based on the type of code item.
+ * Supports functions, structs, enums, and traits. Delegates to specialized handlers.
  *
- * The result includes VSCode snippet placeholders (${1}, ${2}, ...) to allow
- * tabbing through the editable fields when inserted.
- *
- * @param {string} line - The line of Rust code to parse (expected to be a `fn` signature).
- * @returns {string|null} - A formatted multiline doc comment, or null if not a valid function.
+ * @param {string} line - The normalized line of Rust code (a signature).
+ * @returns {string|null} - The formatted doc comment, or null if unsupported.
  */
 function generateDocComment(line) {
+    const itemType = getRustItemType(line);
+    if (!itemType) return null;
+
+    switch (itemType) {
+        case 'function':
+            return generateFunctionDoc(line);
+        case 'struct':
+            return generateStructDoc(line);
+        case 'enum':
+            return generateEnumDoc(line);
+        // case 'trait':
+        //     return generateTraitDoc(line);
+        default:
+            return null;
+    }
+}
+
+/**
+ * Determines the type of Rust item from a signature line.
+ *
+ * @param {string} line - A line of Rust code.
+ * @returns {"function"|"struct"|"enum"|null} - The detected item type.
+ */
+function getRustItemType(line) {
+    if (/fn\s+\w+\s*\(/.test(line)) return 'function';
+    if (/struct\s+\w+/.test(line)) return 'struct';
+    if (/enum\s+\w+/.test(line)) return 'enum';
+    // if (/trait\s+\w+/.test(line)) return 'trait';
+    return null;
+}
+
+/**
+ * Generates doc comments for Rust functions.
+ *
+ * @param {string} line - The normalized function signature.
+ * @returns {string|null} - The doc comment block.
+ */
+function generateFunctionDoc(line) {
     // Attempt to match a Rust function signature.
     const fnMatch = line.match(/fn\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*([^;{]+))?/);
     if (!fnMatch) return null; // If no match, return nothing (unsupported line)
@@ -51,17 +85,6 @@ function generateDocComment(line) {
         docLines.push(`- \`${cleanedReturn}\` - \${${currentTabStop++}:Describe the return value.}`);
     }
 
-    // TODO Make editable configuration to include example sections as a checkbox in the settings.
-
-    // Examples section
-    docLines.push(``, `# Examples`, ``);
-    docLines.push('```');
-    docLines.push(`use crate::...;`, ``);
-    docLines.push(`${name}();`); // Put the function here
-    docLines.push('```');
-
-    // TODO Make editable configuration to include errors sections as a checkbox in the settings.
-
     // Check if rust functions return type is Result
     const isFallible = /Result\s*<.+>/.test(cleanedReturn || '');
 
@@ -71,11 +94,142 @@ function generateDocComment(line) {
         docLines.push(`\${${currentTabStop++}:Describe possible errors.}`);
     }
 
+    // TODO Make editable configuration to include example sections as a checkbox in the settings.
+
+    // Examples section
+    docLines.push(``, `# Examples`, ``);
+    docLines.push('```');
+    docLines.push(`use crate::\${${currentTabStop++}:...};`, ``);
+    docLines.push(`${name}();`); // Put the function here
+    docLines.push('```');
+
     // Prefix all lines with Rust doc syntax (`///`) and return as a snippet string
     return [
         docLines[0], // First line is already preceded by `///` in the editor, skip it
         ...docLines.slice(1).map(line => `/// ${line}`)
     ].join('\n');
 }
+
+/**
+ * Generates doc comments for Rust structs.
+ *
+ * @param {string} line - The struct declaration line.
+ * @returns {string|null} - The doc comment block.
+ */
+function generateStructDoc(line) {
+    // Strip comments from end of line
+    line = line.replace(/\/\/.*$/, '').trim();
+
+    // Match struct name and optional body: {}, (), or unit
+    const structMatch = line.match(/struct\s+(\w+)(\s*\([^)]*\)|\s*\{[^}]*\})?\s*;?/);
+    if (!structMatch) return null;
+
+    const name = structMatch[1];
+    const body = structMatch[2]?.trim() || '';
+    let currentTabStop = 2;
+    const docLines = [` \${1:Describe this struct.}`];
+
+    const fields = [];
+
+    if (body.startsWith('{')) {
+        // Field struct
+        const fieldList = body.slice(1, -1).split(',').map(f => f.trim()).filter(Boolean);
+        for (const field of fieldList) {
+            const [fieldName, fieldType] = field.split(':').map(s => s.trim());
+            if (fieldName && fieldType) {
+                fields.push(`- \`${fieldName}\` (\`${fieldType}\`) - \${${currentTabStop++}:Describe this field.}`);
+            }
+        }
+    } else if (body.startsWith('(')) {
+        // Tuple struct
+        const types = body.slice(1, -1).split(',').map(t => t.trim()).filter(Boolean);
+        for (let i = 0; i < types.length; i++) {
+            fields.push(`- \`field_${i}\` (\`${types[i]}\`) - \${${currentTabStop++}:Describe this tuple field.}`);
+        }
+    } else {
+        // Unit struct
+        fields.push(`This is a unit struct with no fields.`);
+    }
+
+    if (fields.length > 0) {
+        docLines.push(``, `# Fields`, ``, ...fields);
+    }
+
+    docLines.push(``, `# Examples`, ``, '```', `use crate::...;`, ``);
+
+    if (body.startsWith('{')) {
+        // Field-style struct
+        docLines.push(`let s = ${name} {`);
+        for (const field of fields) {
+            const fieldName = field.match(/`([^`]+)`/)[1]; // extract field name
+            docLines.push(`    ${fieldName}: value,`);
+        }
+        docLines.push(`};`);
+    } else if (body.startsWith('(')) {
+        // Tuple-style struct
+        const types = body.slice(1, -1).split(',').map(t => t.trim()).filter(Boolean);
+        const tupleArgs = types.map(() => `value`).join(', ');
+        docLines.push(`let s = ${name}(${tupleArgs});`);
+    } else {
+        // Unit-style struct
+        docLines.push(`let s = ${name};`);
+    }
+
+    docLines.push('```');
+
+    return [docLines[0], ...docLines.slice(1).map(line => `/// ${line}`)].join('\n');
+}
+
+/**
+ * Generates doc comments for Rust enums.
+ *
+ * @param {string} line - The enum declaration line.
+ * @returns {string|null} - The doc comment block.
+ */
+function generateEnumDoc(line) {
+    const enumMatch = line.match(/enum\s+(\w+)/);
+    if (!enumMatch) return null;
+
+    const name = enumMatch[1];
+    return [
+        `\${1:Describe the purpose of the \`${name}\` enum.}`,
+        ``,
+        `# Variants`,
+        ``,
+        `- \${2:VariantName} - \${3:Description of the variant.}`,
+        ``,
+        `# Examples`,
+        ``,
+        '```',
+        `let value = ${name}::\${4:Variant};`,
+        '```'
+    ].map((line, i) => i === 0 ? line : `/// ${line}`).join('\n');
+}
+
+// /**
+//  * Generates doc comments for Rust traits.
+//  *
+//  * @param {string} line - The trait declaration line.
+//  * @returns {string|null} - The doc comment block.
+//  */
+// function generateTraitDoc(line) {
+//     const traitMatch = line.match(/trait\s+(\w+)/);
+//     if (!traitMatch) return null;
+
+//     const name = traitMatch[1];
+//     return [
+//         `\${1:Describe the purpose of the \`${name}\` trait.}`,
+//         ``,
+//         `# Methods`,
+//         ``,
+//         `- \${2:fn method()} - \${3:Description of the method.}`,
+//         ``,
+//         `# Examples`,
+//         ``,
+//         '```',
+//         `impl ${name} for \${4:Type} {}`,
+//         '```'
+//     ].map((line, i) => i === 0 ? line : `/// ${line}`).join('\n');
+// }
 
 module.exports = { generateDocComment };
