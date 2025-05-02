@@ -1,0 +1,82 @@
+{
+  "name": "rustdocstring",
+  "displayName": "rustDocString - Rust Docstring Generator",
+  "description": "Automatically generate structured Rust doc comments (///) for functions, structs, enums, and traits.",
+  "version": "0.0.1",
+  "publisher": "ChrisBeard",
+  "author": "Chris Beard",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrisdbeard/rustDocString"
+  },
+  "bugs": {
+    "url": "https://github.com/chrisdbeard/rustDocString/issues"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Formatters"
+  ],
+  "keywords": [
+    "rust",
+    "docstring",
+    "documentation",
+    "comment",
+    "generate",
+    "generator",
+    "///",
+    "vscode-extension",
+    "vscode",
+    "docgen",
+    "autodocstring",
+    "keybindings",
+    "rustdocstring",
+    "autodocgen",
+    "auto"
+  ],
+  "activationEvents": [
+    "onLanguage:rust"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "rust",
+        "extensions": [
+          ".rs"
+        ],
+        "aliases": [
+          "Rust"
+        ]
+      }
+    ],
+    "completionItemProvider": [
+      {
+        "languages": "rust",
+        "triggerCharacters": [
+          "/",
+          "//",
+          "///"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.99.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.15.3",
+    "eslint": "^9.25.1",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
