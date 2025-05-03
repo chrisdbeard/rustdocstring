@@ -42,15 +42,40 @@ function findNextSignatureBlock(document, startLine) {
     let braceDepth = 0;
     let parentDepth = 0;
     let itemType = null;
+    let insideAttribute = false;
+    let bracketBalance = 0;
 
     for (let i = startLine + 1; i < totalLines; i++) {
         let line = document.lineAt(i).text.trim();
 
+        // If this line is only closing a block and we’re not collecting yet, exit early
+        if (!collecting && line === '}' && braceDepth === 0 || !collecting && line === '' || !collecting && line.startsWith("//")) {
+            return null;
+        }
+
         // Strip comments from line (ignores those inside strings)
         line = line.replace(/\/\/\/.*|\/\/.*$/, '').trim();
 
-        // Skip empty lines and attributes
-        if (!collecting && (line === '' || line.startsWith('#['))) continue;
+        // Track attribute bracket balance for skipping lines of attributes/decorators
+        if (!collecting) {
+            if (line.trim().startsWith('#[')) {
+                insideAttribute = true; // Set flag for being in attribute/decorator
+            }
+
+            if (insideAttribute) {
+                // Count brackets to detect end of attribute
+                for (const char of line) {
+                    if (char === '[') bracketBalance++;
+                    else if (char === ']') bracketBalance--;
+                }
+
+                if (bracketBalance <= 0) {
+                    insideAttribute = false;
+                    bracketBalance = 0;
+                }
+                continue; // Skip attributes/decorator lines
+            }
+        }
 
         const match = signatureStartPattern.exec(line);
         if (!collecting && match) {

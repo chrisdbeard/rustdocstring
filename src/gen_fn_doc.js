@@ -150,7 +150,8 @@ function createExampleSection(name, currentTabStop, hasAsync, hasUnsafe) {
     }
 
     // Add no_run to the markdown code block if async or unsafe
-    exampleLines.push(hasAsync || hasUnsafe ? '```no_run' : '```'); 
+    exampleLines.push(hasAsync || hasUnsafe ? '```no_run' : '```');
+    exampleLines.push(`use crate::\${${currentTabStop++}:...};`, ``);
     exampleLines.push(...exampleContent);
     exampleLines.push('```'); // Always end the Examples markdown code section
 
