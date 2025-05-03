@@ -1,8 +1,5 @@
 # RustDocString - VSCode Rust Docstring Generator
 
-<!-- [![Installs](https://vsmarketplacebadges.dev/installs-short/chrisdbeard.rustdocstring.svg)](https://marketplace.visualstudio.com/items?itemName=ChrisBeard.rutodocstring) -->
-<!-- [![Rating](https://vsmarketplacebadges.dev/rating-short/chrisdbeard.rustdocstring.svg)](https://marketplace.visualstudio.com/items?itemName=ChrisBeard.rustdocstring&ssr=false#review-details) -->
-<!-- [![Build Status](https://github.com/chrisdbeard/rustdocstring/actions/workflows/test_and_publish.yml/badge.svg)](https://github.com/chrisdbeard/rustdocstring/actions/workflows/test_and_publish.yml) -->
 ![Stars](https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social)
 ![version](https://img.shields.io/badge/version-0.0.1-green)
 ![License](https://img.shields.io/github/license/chrisdbeard/rustdocstring)
