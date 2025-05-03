@@ -18,6 +18,8 @@ function generateDocComment(line) {
             return generateEnumDoc(line);
         // case 'trait':
         //     return generateTraitDoc(line);
+        // case 'union':
+        //     return generateUnionDoc(line);
         default:
             return null;
     }
@@ -34,6 +36,7 @@ function getRustItemType(line) {
     if (/struct\s+\w+/.test(line)) return 'struct';
     if (/enum\s+\w+/.test(line)) return 'enum';
     // if (/trait\s+\w+/.test(line)) return 'trait';
+    // if (/union\s+\w+/.test(line)) return 'union';
     return null;
 }
 
@@ -44,8 +47,11 @@ function getRustItemType(line) {
  * @returns {string|null} - The doc comment block.
  */
 function generateFunctionDoc(line) {
+    // Strip pub, pub(crate), pub(in ...), pub(self), pub(super)
+    const cleanLine = line.replace(/pub(\s*\([^)]*\)|\s+self|\s+super)?\s+/, '');
+
     // Attempt to match a Rust function signature.
-    const fnMatch = line.match(/fn\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*([^;{]+))?/);
+    const fnMatch = cleanLine.match(/fn\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*([^;{]+))?/);
     if (!fnMatch) return null; // If no match, return nothing (unsupported line)
 
     // Destructure the match results: function name, arguments, and optional return type.
@@ -100,7 +106,7 @@ function generateFunctionDoc(line) {
     docLines.push(``, `# Examples`, ``);
     docLines.push('```');
     docLines.push(`use crate::\${${currentTabStop++}:...};`, ``);
-    docLines.push(`${name}();`); // Put the function here
+    docLines.push(`let x = ${name}();`); // Put the function here
     docLines.push('```');
 
     // Prefix all lines with Rust doc syntax (`///`) and return as a snippet string
@@ -113,15 +119,18 @@ function generateFunctionDoc(line) {
 /**
  * Generates doc comments for Rust structs.
  *
- * @param {string} line - The struct declaration line.
+ * @param {string} line - The struct declaration and block in a single line.
  * @returns {string|null} - The doc comment block.
  */
 function generateStructDoc(line) {
-    // Strip comments from end of line
-    line = line.replace(/\/\/.*$/, '').trim();
+    // Reject unit structs (single struct no fields)
+    if (/struct\s+\w+\s*(;|\{\})/.test(line)) return null; // Struct ends with ';' or '{}'
+
+     // Remove visibility modifier (pub, pub(...))
+     const cleanLine = line.replace(/pub(\s*\([^)]*\))?\s+/g, '');
 
     // Match struct name and optional body: {}, (), or unit
-    const structMatch = line.match(/struct\s+(\w+)(\s*\([^)]*\)|\s*\{[^}]*\})?\s*;?/);
+    const structMatch = cleanLine.match(/struct\s+(\w+)\s*(\([^)]*\)|\{[\s\S]*\})/);
     if (!structMatch) return null;
 
     const name = structMatch[1];
@@ -131,11 +140,13 @@ function generateStructDoc(line) {
 
     const fields = [];
 
+    // Find all fields for the structure can be a Field struct or a Tuple struct -- "struct Temp {" or "struct Temp("
     if (body.startsWith('{')) {
         // Field struct
         const fieldList = body.slice(1, -1).split(',').map(f => f.trim()).filter(Boolean);
         for (const field of fieldList) {
-            const [fieldName, fieldType] = field.split(':').map(s => s.trim());
+            const cleanedField = field.replace(/pub(\s*\([^)]*\))?\s+/, '').trim(); // Remove 'pub' from field
+            const [fieldName, fieldType] = cleanedField.split(':').map(s => s.trim());
             if (fieldName && fieldType) {
                 fields.push(`- \`${fieldName}\` (\`${fieldType}\`) - \${${currentTabStop++}:Describe this field.}`);
             }
@@ -146,15 +157,14 @@ function generateStructDoc(line) {
         for (let i = 0; i < types.length; i++) {
             fields.push(`- \`field_${i}\` (\`${types[i]}\`) - \${${currentTabStop++}:Describe this tuple field.}`);
         }
-    } else {
-        // Unit struct
-        fields.push(`This is a unit struct with no fields.`);
     }
 
+    // Struct Fields section
     if (fields.length > 0) {
         docLines.push(``, `# Fields`, ``, ...fields);
     }
 
+    // Examples section
     docLines.push(``, `# Examples`, ``, '```', `use crate::...;`, ``);
 
     if (body.startsWith('{')) {
@@ -170,9 +180,6 @@ function generateStructDoc(line) {
         const types = body.slice(1, -1).split(',').map(t => t.trim()).filter(Boolean);
         const tupleArgs = types.map(() => `value`).join(', ');
         docLines.push(`let s = ${name}(${tupleArgs});`);
-    } else {
-        // Unit-style struct
-        docLines.push(`let s = ${name};`);
     }
 
     docLines.push('```');
@@ -187,49 +194,81 @@ function generateStructDoc(line) {
  * @returns {string|null} - The doc comment block.
  */
 function generateEnumDoc(line) {
-    const enumMatch = line.match(/enum\s+(\w+)/);
+    line = line.replace(/\/\/.*$/, '').trim();
+    const enumMatch = line.match(/enum\s+(\w+)(?:\s*<[^>]+>)?\s*\{([\s\S]+)\}/);
     if (!enumMatch) return null;
 
     const name = enumMatch[1];
-    return [
-        `\${1:Describe the purpose of the \`${name}\` enum.}`,
-        ``,
-        `# Variants`,
-        ``,
-        `- \${2:VariantName} - \${3:Description of the variant.}`,
-        ``,
-        `# Examples`,
-        ``,
-        '```',
-        `let value = ${name}::\${4:Variant};`,
-        '```'
-    ].map((line, i) => i === 0 ? line : `/// ${line}`).join('\n');
+    const body = enumMatch[2].trim();
+    let currentTabStop = 2;
+    const docLines = [`\${1:Describe this enum.}`, ``, `# Variants`, ``];
+
+    const variants = splitEnumVariants(body);
+    const exampleLines = [`match ${name.toLowerCase()} {`];
+
+    for (const variant of variants) {
+        const unitMatch = variant.match(/^(\w+)$/);
+        const tupleMatch = variant.match(/^(\w+)\s*\((.+)\)$/);
+        const fieldMatch = variant.match(/^(\w+)\s*\{(.+)\}$/);
+
+        if (unitMatch) {
+            const variantName = unitMatch[1];
+            docLines.push(`- \`${variantName}\` - \${${currentTabStop++}:Describe this variant.}`);
+            exampleLines.push(`    ${name}::${variantName} => \${${currentTabStop++}:handle_unit},`);
+        } else if (tupleMatch) {
+            const variantName = tupleMatch[1];
+            const types = tupleMatch[2].split(',').map(t => t.trim());
+            docLines.push(`- \`${variantName}(${types.join(', ')})\` - \${${currentTabStop++}:Describe this tuple variant.}`);
+            const bindings = types.map((_, i) => `v${i}`).join(', ');
+            exampleLines.push(`    ${name}::${variantName}(${bindings}) => \${${currentTabStop++}:handle_tuple},`);
+        } else if (fieldMatch) {
+            const variantName = fieldMatch[1];
+            const fields = fieldMatch[2].split(',').map(f => f.trim()).filter(Boolean);
+            const fieldNames = fields.map(f => f.split(':')[0].trim());
+            const fieldLine = `- \`${variantName} { ${fieldNames.join(', ')} }\` - \${${currentTabStop++}:Describe this field variant.}`;
+            docLines.push(fieldLine);
+            exampleLines.push(`    ${name}::${variantName} { ${fieldNames.join(', ')} } => \${${currentTabStop++}:handle_fields},`);
+        } else {
+            docLines.push(`- \`${variant}\` - \${${currentTabStop++}:Describe this variant.}`);
+            exampleLines.push(`    ${name}::${variant} => \${${currentTabStop++}:handle_unknown},`);
+        }
+    }
+
+    const defaultVariant = variants[0].split(/[({]/)[0].trim();
+    docLines.push(``, `# Examples`, ``, '```', `use crate::...;`, ``);
+    docLines.push(`let ${name.toLowerCase()} = ${name}::${defaultVariant};`);
+    docLines.push(...exampleLines);
+    docLines.push('}');
+    docLines.push('```');
+
+    return [docLines[0], ...docLines.slice(1).map(line => `/// ${line}`)].join('\n');
 }
 
-// /**
-//  * Generates doc comments for Rust traits.
-//  *
-//  * @param {string} line - The trait declaration line.
-//  * @returns {string|null} - The doc comment block.
-//  */
-// function generateTraitDoc(line) {
-//     const traitMatch = line.match(/trait\s+(\w+)/);
-//     if (!traitMatch) return null;
+function splitEnumVariants(body) {
+    const variants = [];
+    let current = '';
+    let brace = 0, paren = 0;
 
-//     const name = traitMatch[1];
-//     return [
-//         `\${1:Describe the purpose of the \`${name}\` trait.}`,
-//         ``,
-//         `# Methods`,
-//         ``,
-//         `- \${2:fn method()} - \${3:Description of the method.}`,
-//         ``,
-//         `# Examples`,
-//         ``,
-//         '```',
-//         `impl ${name} for \${4:Type} {}`,
-//         '```'
-//     ].map((line, i) => i === 0 ? line : `/// ${line}`).join('\n');
-// }
+    for (let i = 0; i < body.length; i++) {
+        const char = body[i];
+        if (char === '{') brace++;
+        if (char === '}') brace--;
+        if (char === '(') paren++;
+        if (char === ')') paren--;
+
+        if (char === ',' && brace === 0 && paren === 0) {
+            variants.push(current.trim());
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+
+    if (current.trim()) {
+        variants.push(current.trim());
+    }
+
+    return variants;
+}
 
 module.exports = { generateDocComment };

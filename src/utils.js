@@ -30,7 +30,12 @@ const vscode = require('vscode');
  */
 function findNextSignatureBlock(document, startLine) {
     const totalLines = document.lineCount;
-    const signatureStartPattern = /^(?:pub\s+)?(?:unsafe\s+)?(?:async\s+)?(fn|struct|enum)\s+/;
+    // const signatureStartPattern = /^(?:pub\s+)?(?:unsafe\s+)?(?:async\s+)?(fn|struct|enum)\s+/;
+
+    // Match `pub`, `unsafe`, `async`, `const`, `extern`, then `fn`, `struct`, or `enum`
+    const signatureStartPattern = new RegExp(
+        String.raw`^(?:pub(?:\s*\([^)]*\)|\s+super|\s+self|\s+in\s+[^\s]+)?\s+)?(?:const\s+)?(?:unsafe\s+)?(?:async\s+)?(?:extern\s*(?:"[^"]*")?\s*)?(fn|struct|enum)\s+`
+    );
 
     let signatureLines = [];
     let collecting = false;
@@ -39,7 +44,10 @@ function findNextSignatureBlock(document, startLine) {
     let itemType = null;
 
     for (let i = startLine + 1; i < totalLines; i++) {
-        const line = document.lineAt(i).text.trim();
+        let line = document.lineAt(i).text.trim();
+
+        // Strip comments from line (ignores those inside strings)
+        line = line.replace(/\/\/\/.*|\/\/.*$/, '').trim();
 
         // Skip empty lines and attributes
         if (!collecting && (line === '' || line.startsWith('#['))) continue;
@@ -59,7 +67,7 @@ function findNextSignatureBlock(document, startLine) {
                     break;
                 }
             } else {
-                // Track braces and parens for body parsing
+                // Track braces and parens for body parsing. This is the logic to find the body boundary
                 for (const char of line) {
                     if (char === '{') braceDepth++;
                     if (char === '}') braceDepth--;
