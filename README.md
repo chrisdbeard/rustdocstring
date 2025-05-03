@@ -1,65 +1,96 @@
-# rustdocstring README
+# rustDocString - VSCode Rust Docstring Generator
 
-This is the README for your extension "rustdocstring". After writing up a brief description, we recommend including the following sections.
+**rustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Auto-generates Rust doc comments by typing `///` above a code item.
+- Context-aware parsing for:
+    - `fn` (with support fork *keyword modifiers* `pub`, `pub(...)`, `async`, `unsafe`, and `extern`)
+      - Includes `# Arguments` and `# Returns` sections as appropriate.
+    - `struct` (field and tuple style)
+      - Includes `# Fields` section as appropriate.
+    - `enum` (with unit, tuple, and struct variants)
+      - Includes `# Variants` section as appropriate.
+- Includes `# Safety`, `# Errors`, and `# Examples` sections as appropriate.
+- Snippet tabstops make customization fast and consistent.
+- Works seamlessly with multi-line signatures and skips attributes like `#[derive(...)]`.
 
-For example if there is an image subfolder under your extension project workspace:
+## Quick Start
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Install the extension from the VSCode Marketplace.
+2. Open any Rust file.
+3. Above a Rust item (function, struct, or enum), type ///.
+4. Accept the completion snippet: "Generate Rust Doc Comment".
+> Works out-of-the-box — no additional setup required.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## How It Works
 
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+RustDocString uses a signature parser (`utils.js`) to scan for the next Rust item and normalize its declaration. Then, depending on the item type:
+- **Functions** → `gen_fn_doc.js`
+- **Structs** → `gen_struct_doc.js`
+- **Enums** → `gen_enum_doc.js`
+These generate snippet-style doc blocks with Markdown formatting, code examples, and placeholder descriptions.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+*No configuration options available yet.*
+The extension is designed to work automatically when you type `///`.
 
-For example:
+> Planned: Enable/disable sections (e.g., examples, safety blocks) via settings.
 
-This extension contributes the following settings:
+## Requirements
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- Visual Studio Code 1.80+ (recommended)
+- Rust code with valid syntax (detected using regex-based scanning)
+
+## Installation
+
+Via Marketplace (coming soon):
+
+```bash
+ext install rustdocstring
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/your-org/rustdocstring
+cd rustdocstring
+npm install
+npm run compile
+```
+
+Then launch the extension in development mode with VSCode.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Does not yet support:
+    - Traits
+    - Unions
+    - Individual enum variant document generation
+      - *Creates the documentation for the enum as a whole. The `cargo doc` creates a separate section for enum variants.*
 
-## Release Notes
+## Changelog
 
-Users appreciate release notes as you update your extension.
+Check the [CHANGELOG.md](CHANGELOG.md) for any version changes.
 
-### 1.0.0
+## Reporting Issues
 
-Initial release of ...
+- Report any issues on the github [GitHub Issues page](https://github.com/chrisdbeard/rustdocstring/issues). Use the `bug` or `feature request` labels where appropriate. Follow the template and add as much information as possible.
 
-### 1.0.1
+## Contributing
 
-Fixed issue #.
+The source code is available on [GitHub](https://github.com/chrisdbeard/rustdocstring), and contributions of all kinds are welcome — whether it's filing an issue, requesting a feature, or submitting a pull request.
 
-### 1.1.0
+- Found a bug or have an idea? Please open an issue on the [GitHub Issues page](https://github.com/chrisdbeard/rustdocstring/issues). Use the `bug` or `feature request` labels where appropriate.
+- To contribute code:
+  1. Fork the repository.
+  2. Create a feature branch.
+  3. Submit a pull request against the `master` branch.
+  4. If your changes introduce or modify functionality, consider updating the README as well.
+- While there isn’t an official contribution guide or code of conduct yet, standard open source etiquette applies. Be constructive, respectful, and collaborative.
 
-Added features X, Y, and Z.
+## License
 
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details
