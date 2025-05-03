@@ -9,6 +9,8 @@
 
 **RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
 
+**TODO add gif here.**
+
 ## Features
 
 - Auto-generates Rust doc comments by typing `///` above a code item.
@@ -40,8 +42,6 @@ RustDocString uses a signature parser (`utils.js`) to scan for the next Rust ite
 These generate snippet-style doc blocks with Markdown formatting, code examples, and placeholder descriptions.
 
 ## Examples:
-
-TODO add gifs here.
 
 *The commented section are generated from this extension. Notice the 'Describe this' within the comment.*
 
