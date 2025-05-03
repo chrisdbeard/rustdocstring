@@ -31,11 +31,10 @@ const vscode = require('vscode');
  */
 function findNextSignatureBlock(document, startLine) {
     const totalLines = document.lineCount;
-    // const signatureStartPattern = /^(?:pub\s+)?(?:unsafe\s+)?(?:async\s+)?(fn|struct|enum)\s+/;
 
-    // Match `pub`, `unsafe`, `async`, `const`, `extern`, then `fn`, `struct`, or `enum`
+    // Match `pub`, `async`, `unsafe`, `const`, `extern`, then `fn`, `struct`, or `enum`
     const signatureStartPattern = new RegExp(
-        String.raw`^(?:pub(?:\s*\([^)]*\)|\s+super|\s+self|\s+in\s+[^\s]+)?\s+)?(?:const\s+)?(?:unsafe\s+)?(?:async\s+)?(?:extern\s*(?:"[^"]*")?\s*)?(fn|struct|enum)\s+`
+        String.raw`^(?:pub(?:\s*\([^)]*\)|\s+super|\s+self|\s+in\s+[^\s]+)?\s+)?(?:const\s+)?(?:async\s+)?(?:unsafe\s+)?(?:extern\s*(?:"[^"]*")?\s*)?(fn|struct|enum)\s+`
     );
 
     let signatureLines = [];
