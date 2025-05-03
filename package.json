@@ -1,21 +1,21 @@
 {
   "name": "rustdocstring",
   "displayName": "rustDocString - Rust Docstring Generator",
-  "description": "Automatically generate structured Rust doc comments (///) for functions, structs, enums, and traits.",
+  "description": "Automatically generate structured Rust doc comments (///) for functions, structs, and enums.",
   "version": "0.0.1",
   "publisher": "ChrisBeard",
   "author": "Chris Beard",
-  "icon": "icon.png",
+  "icon": "./images/icon1.png",
   "engines": {
     "vscode": "^1.60.0"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chrisdbeard/rustDocString"
+    "url": "https://github.com/chrisdbeard/rustdocstring"
   },
   "bugs": {
-    "url": "https://github.com/chrisdbeard/rustDocString/issues"
+    "url": "https://github.com/chrisdbeard/rustdocstring/issues"
   },
   "categories": [
     "Programming Languages",
