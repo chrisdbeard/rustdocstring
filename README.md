@@ -42,6 +42,119 @@ RustDocString uses a signature parser (`utils.js`) to scan for the next Rust ite
 - **Enums** → `gen_enum_doc.js`
 These generate snippet-style doc blocks with Markdown formatting, code examples, and placeholder descriptions.
 
+## Examples:
+
+TODO add gifs here.
+
+*The commented section are generated from this extension. Notice the 'Describe this' within the comment.*
+
+### Output Example: Functions
+
+```rust
+/// Describe this function.
+/// 
+/// # Arguments
+/// 
+/// - `a` (`f64`) - Describe this parameter.
+/// - `b` (`f64`) - Describe this parameter.
+/// 
+/// # Returns
+/// 
+/// - `f64` - Describe the return value.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use crate::...;
+/// 
+/// let _ = add();
+/// ```
+pub fn add(a: f64, b: f64) -> f64 {
+    a + b
+}
+```
+
+```rust
+/// Describe this function.
+/// 
+/// # Safety
+/// 
+/// - **The caller must ensure that:**
+///   - Any internal state or memory accessed by this function is in a valid state.
+///   - Preconditions specific to this function's logic are satisfied.
+///   - This function is only called in the correct program state to avoid UB.
+/// - **This function is `unsafe` because:**
+///   - Describe unsafe behavior.
+/// 
+/// # Examples
+/// 
+/// ```no_run
+/// use crate::...;
+/// 
+/// // SAFETY: The Caller guarantees all invariants are met.
+/// unsafe {
+///   let _ = unsafe_externed_function();
+/// }
+/// ```
+unsafe extern "C" fn unsafe_externed_function() {}
+```
+
+### Output Example: Structs
+
+*Ignores attribute/decorators.*
+
+```rust
+/// Describe this struct.
+/// 
+/// # Fields
+/// 
+/// - `kind` (`IpAddrKind`) - Describe this field.
+/// - `address` (`String`) - Describe this field.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use crate::...;
+/// 
+/// let s = IpAddr {
+///     kind: value,
+///     address: value,
+/// };
+/// ```
+#[derive(Debug)]
+struct IpAddr {
+    kind: IpAddrKind,
+    address: String,
+}
+```
+
+### Output Example: Enums
+
+```rust
+/// Describe this enum.
+/// 
+/// # Variants
+/// 
+/// - `V4` - Describe this variant.
+/// - `V6` - Describe this variant.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use crate::...;
+/// 
+/// let icaddrkind = IcAddrKind::V4;
+/// match icaddrkind {
+///     IcAddrKind::V4 => handle_unit,
+///     IcAddrKind::V6 => handle_unit,
+/// }
+/// ```
+pub enum IcAddrKind {
+    V4,
+    V6,
+}
+```
+
 ## Extension Settings
 
 *No configuration options available yet.*
