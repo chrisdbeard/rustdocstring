@@ -2,17 +2,23 @@
 const vscode = require('vscode');
 
 /**
- * Scans forward in a VSCode document from a given starting line to locate and
- * extract the full signature block of the next Rust item (e.g., function,
- * struct, enum, or trait).
+ * Scans forward in a VSCode text document from a given line to locate and extract
+ * the full signature block of the next Rust item (e.g., function, struct, or enum).
+ * 
+ * Structs and enums return with their full signature and body blocks.
  *
- * This function supports multi-line declarations and skips over attribute
- * annotations (e.g., `#[doc(hidden)]`) and blank lines. It collects lines
- * starting from the detected Rust item until it reaches a likely signature
- * terminator, such as `{`, `;`, or `=>`, then normalizes and returns it as a
- * single-line string.
+ * This utility supports multi-line declarations and properly handles:
+ * - Leading attributes such as `#[derive(...)]`, `#[doc(hidden)]`, etc.
+ * - Skipping over blank lines and comments
+ * - Bracket/parenthesis balancing for collecting full signatures
  *
- * Example:
+ * It begins scanning from the line *after* `startLine`, identifies the start of a
+ * Rust item using a regular expression, and then collects lines until it reaches
+ * the logical end of the signature (e.g., line ending in `{`, `;`, or `=>`), or the
+ * closing of a balanced block.
+ *
+ * ### Example
+ * Input:
  * ```rust
  * #[doc(hidden)]
  * pub fn example(
@@ -20,14 +26,14 @@ const vscode = require('vscode');
  *     arg2: String,
  * ) -> Result<(), Box<dyn Error>> {
  * ```
- * Returns:
- * ```
+ * Output:
+ * ```text
  * "pub fn example( arg1: i32, arg2: String, ) -> Result<(), Box<dyn Error>> {"
  * ```
  *
- * @param {vscode.TextDocument} document - The VSCode text document to search within.
- * @param {number} startLine - The zero-based line index to begin searching from.
- * @returns {string|null} A normalized, single-line Rust signature string if found, or null if no valid item is detected.
+ * @param {vscode.TextDocument} document - The VSCode text document to scan.
+ * @param {number} startLine - The zero-based line number to begin scanning from.
+ * @returns {string|null} A normalized, single-line signature string if found; otherwise, `null`.
  */
 function findNextSignatureBlock(document, startLine) {
     const totalLines = document.lineCount;

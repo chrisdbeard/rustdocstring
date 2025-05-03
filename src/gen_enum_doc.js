@@ -1,22 +1,35 @@
 /**
- * Generates doc comments for Rust enums.
+ * Generates a Rust-style documentation block for an `enum` declaration.
  *
- * @param {string} line - The enum declaration line.
- * @returns {string|null} - The doc comment block.
+ * The generated block includes:
+ * - A general description template.
+ * - A `# Variants` section that lists all enum variants with tab stops.
+ * - A `# Examples` section that demonstrates pattern matching.
+ *
+ * Supports unit variants, tuple variants, and struct variants.
+ *
+ * @param {string} line - The line containing the Rust `enum` declaration with its body.
+ * @returns {string|null} A formatted doc comment block or null if parsing fails.
  */
 function generateEnumDoc(line) {
+    // Remove trailing comments and trim whitespace
     line = line.replace(/\/\/.*$/, '').trim();
+
+    // Match the enum name and body
     const enumMatch = line.match(/enum\s+(\w+)(?:\s*<[^>]+>)?\s*\{([\s\S]+)\}/);
     if (!enumMatch) return null;
 
     const name = enumMatch[1];
     const body = enumMatch[2].trim();
     let currentTabStop = 2;
-    const docLines = [`\${1:Describe this enum.}`, ``, `# Variants`, ``];
+
+    // Documentation start and Variants section
+    const docLines = [` \${1:Describe this enum.}`, ``, `# Variants`, ``];
 
     const variants = splitEnumVariants(body);
     const exampleLines = [`match ${name.toLowerCase()} {`];
 
+    // Generate a documentation line and match arm for each variant
     for (const variant of variants) {
         const unitMatch = variant.match(/^(\w+)$/);
         const tupleMatch = variant.match(/^(\w+)\s*\((.+)\)$/);
@@ -46,20 +59,37 @@ function generateEnumDoc(line) {
     }
 
     const defaultVariant = variants[0].split(/[({]/)[0].trim();
-    docLines.push(``, `# Examples`, ``, '```', `use crate::...;`, ``);
-    docLines.push(`let ${name.toLowerCase()} = ${name}::${defaultVariant};`);
+
+    // Examples section
+    docLines.push(``, `# Examples`, ``, '```', `use crate::\${${currentTabStop++}:...};`, ``);
+    docLines.push(`let ${name.toLowerCase()} = ${name}::${defaultVariant};`); // Add function name.
     docLines.push(...exampleLines);
     docLines.push('}');
-    docLines.push('```');
+    docLines.push('```'); // End the example section markdown code block
 
+    // Format as Rust doc comment block
     return [docLines[0], ...docLines.slice(1).map(line => `/// ${line}`)].join('\n');
 }
 
+/**
+ * Splits an enum body string into individual variant strings,
+ * accounting for nested braces `{}` and parentheses `()`.
+ *
+ * This function ensures variants like:
+ *   - `A`
+ *   - `B(u8)`
+ *   - `C { x: u32 }`
+ * are split correctly even when commas appear inside tuple or struct bodies.
+ *
+ * @param {string} body - The enum body string, e.g., `"A, B(u8), C { x: u32 }"`.
+ * @returns {string[]} An array of cleaned variant strings.
+ */
 function splitEnumVariants(body) {
     const variants = [];
     let current = '';
     let brace = 0, paren = 0;
 
+    // If not inside nested structures, use commas to split
     for (let i = 0; i < body.length; i++) {
         const char = body[i];
         if (char === '{') brace++;

@@ -1,8 +1,22 @@
 /**
- * Generates doc comments for Rust structs.
+ * Generates a Rust-style documentation block for a `struct` declaration.
  *
- * @param {string} line - The struct declaration and block in a single line.
- * @returns {string|null} - The doc comment block.
+ * This function handles both:
+ * - Field-style structs: `struct Name { field: Type, ... }`
+ * - Tuple-style structs: `struct Name(Type, ...)`
+ *
+ * Unit structs (e.g., `struct X;` or `struct Y {}`) are ignored as they don't require
+ * field-level documentation.
+ *
+ * The generated doc block includes:
+ * - A general description placeholder.
+ * - A `# Fields` section with placeholders for each field.
+ * - A `# Examples` section demonstrating how to instantiate the struct.
+ *
+ * Tab stops (`${n:...}`) are inserted for editor snippet expansion.
+ *
+ * @param {string} line - A string containing the full struct declaration, including its body.
+ * @returns {string|null} The formatted doc comment block, or `null` if the input is not a valid documentable struct.
  */
 function generateStructDoc(line) {
     // Reject unit structs (single struct no fields)
@@ -47,7 +61,7 @@ function generateStructDoc(line) {
     }
 
     // Examples section
-    docLines.push(``, `# Examples`, ``, '```', `use crate::...;`, ``);
+    docLines.push(``, `# Examples`, ``, '```', `use crate::\${${currentTabStop++}:...};`, ``);
 
     if (body.startsWith('{')) {
         // Field-style struct
@@ -64,8 +78,9 @@ function generateStructDoc(line) {
         docLines.push(`let s = ${name}(${tupleArgs});`);
     }
 
-    docLines.push('```');
+    docLines.push('```'); // End the example section markdown code block
 
+    // Format as Rust doc comment block
     return [docLines[0], ...docLines.slice(1).map(line => `/// ${line}`)].join('\n');
 }
 

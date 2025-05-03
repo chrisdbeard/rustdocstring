@@ -1,8 +1,19 @@
 /**
- * Generates doc comments for Rust functions.
+ * Generates a Rust-style documentation block for a function signature.
  *
- * @param {string} line - The normalized function signature.
- * @returns {string|null} - The doc comment block.
+ * This function parses a normalized Rust `fn` line and dynamically creates a formatted doc comment
+ * that includes:
+ * - A general description placeholder
+ * - Parameter list (`# Arguments`) with per-argument placeholders
+ * - Return type section (`# Returns`) if applicable
+ * - Safety contract (`# Safety`) if the function is marked as `unsafe` or `extern`
+ * - Error documentation (`# Errors`) for functions returning `Result<T, E>`
+ * - An example usage block with async/unsafe awareness
+ *
+ * Tab stops (e.g., `${2:...}`) are included to support editor snippet expansion.
+ *
+ * @param {string} line - The normalized function signature, stripped of leading comments or extra lines.
+ * @returns {string|null} The formatted Rust doc comment block as a string, or `null` if the input is not a valid function signature.
  */
 function generateFunctionDoc(line) {
     // Strip pub, pub(crate), pub(in ...), pub(self), pub(super)
