@@ -1,4 +1,4 @@
-# RustDocString - VSCode Rust Docstring Generator
+# Rust Doc String - VSCode Rust Docstring Generator
 
 <p align="center">
   <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
@@ -7,7 +7,7 @@
   <img alt="Rust" src="https://img.shields.io/badge/rust-supported-orange?logo=rust">
 </p>
 
-**RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
+**Rust Doc String** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
 
 <p align="center">
   <img alt="Function Demo" src="images/example1.gif">
