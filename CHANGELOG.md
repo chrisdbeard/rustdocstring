@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Extension setting
+- Extension settings
 
 ## [0.0.1] Initial release - 2025-05-03
 
@@ -10,3 +10,4 @@
 - Context-aware comment generation
 - Snippet tabstops for ease of editing
 - Example code block generation
+- Test for code coverage
