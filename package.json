@@ -59,6 +59,7 @@
     ]
   },
   "scripts": {
+    "release": "standard-version",
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "mocha \"./src/test/*.test.js\""
@@ -70,6 +71,7 @@
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.25.1",
-    "mocha": "^11.2.2"
+    "mocha": "^11.2.2",
+    "standard-version": "^9.5.0"
   }
 }

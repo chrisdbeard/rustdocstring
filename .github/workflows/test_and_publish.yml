@@ -28,3 +28,43 @@ jobs:
 
       - name: Run unit tests
         run: npm test
+
+  release:
+    name: Bump Version, Update Changelog, and Publish
+    needs: unit-test
+    if: |
+      github.ref == 'refs/heads/master' &&
+      github.actor == 'chrisdbeard'
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Bump version and update changelog
+        run: npm run release
+
+      - name: Commit version bump and changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore(release): $(node -p "require('./package.json').version") [skip ci]" || echo "No changes to commit"
+
+      - name: Create Git tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git tag "v$VERSION"
+          git push origin master --follow-tags
+          git push origin "v$VERSION"
+
+      - name: Publish to VSCode Marketplace
+        run: npx vsce publish -p ${{ secrets.VS_MARKETPLACE_TOKEN }}
