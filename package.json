@@ -5,7 +5,7 @@
   "version": "0.1.1",
   "publisher": "ChrisBeard",
   "author": "Chris Beard",
-  "icon": "./images/icon2.png",
+  "icon": "images/icon2.png",
   "engines": {
     "vscode": "^1.80.0"
   },
