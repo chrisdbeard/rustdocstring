@@ -51,7 +51,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_RELEASE_PAT }}
           body: |
             # Summary
             See the [CHANGELOG.md]((https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md))
