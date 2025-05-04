@@ -1,11 +1,11 @@
 {
   "name": "rustdocstring",
-  "displayName": "rustDocString - Rust Docstring Generator",
+  "displayName": "Rust Doc String - Rust Docstring Generator",
   "description": "Automatically generate structured Rust doc comments (///) for functions, structs, and enums.",
   "version": "0.0.1",
   "publisher": "ChrisBeard",
   "author": "Chris Beard",
-  "icon": "./images/icon1.png",
+  "icon": "./images/icon2.png",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -37,7 +37,9 @@
     "keybindings",
     "rustdocstring",
     "autodocgen",
-    "auto"
+    "auto",
+    "doc",
+    "block"
   ],
   "activationEvents": [
     "onLanguage:rust"

@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- 
+- Extension setting
 
 ## [0.0.1] Initial release - 2025-05-03
 

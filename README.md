@@ -7,9 +7,12 @@
 ![VSCode](https://img.shields.io/badge/vscode-extension-blue?logo=visualstudiocode)
 ![Rust](https://img.shields.io/badge/rust-supported-orange?logo=rust)
 
-**RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
+> **RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
 
 **TODO add gif here.**
+![Demo](images/demo.gif)
+
+---
 
 ## Features
 
@@ -25,6 +28,8 @@
 - Snippet tabstops make customization fast and consistent.
 - Works seamlessly with multi-line signatures and skips attributes like `#[derive(...)]`.
 
+---
+
 ## Quick Start
 
 1. Install the extension from the VSCode Marketplace.
@@ -32,6 +37,8 @@
 3. Above a Rust item (function, struct, or enum), type ///.
 4. Accept the completion snippet: "Generate Rust Doc Comment".
 > Works out-of-the-box — no additional setup required.
+
+---
 
 ## How It Works
 
@@ -41,11 +48,24 @@ RustDocString uses a signature parser (`utils.js`) to scan for the next Rust ite
 - **Enums** → `gen_enum_doc.js`
 These generate snippet-style doc blocks with Markdown formatting, code examples, and placeholder descriptions.
 
-## Examples:
+```mermaid
+flowchart TD
+    A[User types /// above Rust item] --> B[VSCode triggers completion]
+    B --> C[extension.js captures line]
+    C --> D[utils.js parses next signature block]
+    D --> E[docgen.js determines item type]
+    E --> F[generateFnDoc / generateStructDoc / generateEnumDoc]
+    F --> G[Returns doc snippet with tabstops]
+    G --> H[Inserted back into editor]
+```
+
+---
+
+## Example Output:
 
 *The commented section are generated from this extension. Notice the 'Describe this' within the comment.*
 
-### Output Example: Functions
+### Function
 
 ```rust
 /// Describe this function.
@@ -96,7 +116,7 @@ pub fn add(a: f64, b: f64) -> f64 {
 unsafe extern "C" fn unsafe_externed_function() {}
 ```
 
-### Output Example: Structs
+### Struct
 
 *Ignores attribute/decorators.*
 
@@ -125,7 +145,7 @@ struct IpAddr {
 }
 ```
 
-### Output Example: Enums
+### Enum
 
 ```rust
 /// Describe this enum.
@@ -152,6 +172,8 @@ pub enum IcAddrKind {
 }
 ```
 
+---
+
 ## Extension Settings
 
 *No configuration options available yet.*
@@ -162,7 +184,10 @@ The extension is designed to work automatically when you type `///`.
 ## Requirements
 
 - Visual Studio Code 1.80+ (recommended)
+- Rust project (assumes `.rs` files)
 - Rust code with valid syntax (detected using regex-based scanning)
+
+---
 
 ## Installation
 
@@ -183,6 +208,8 @@ npm run compile
 
 Then launch the extension in development mode with VSCode.
 
+---
+
 ## Known Issues
 
 - Does not yet support:
@@ -191,13 +218,26 @@ Then launch the extension in development mode with VSCode.
     - Individual enum variant document generation
       - *Creates the documentation for the enum as a whole. The `cargo doc` creates a separate section for enum variants.*
 
+---
+
 ## Changelog
 
 Check the [CHANGELOG.md](CHANGELOG.md) for any version changes.
 
+---
+
+## Related
+
+- [Rustdoc Book](https://doc.rust-lang.org/rustdoc/) - Official guide
+- [VS Code Snippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets)
+
+---
+
 ## Reporting Issues
 
 - Report any issues on the github [GitHub Issues page](https://github.com/chrisdbeard/rustdocstring/issues). Use the `bug` or `feature request` labels where appropriate. Follow the template and add as much information as possible.
+
+---
 
 ## Contributing
 
@@ -210,6 +250,8 @@ The source code is available on [GitHub](https://github.com/chrisdbeard/rustdocs
   3. Submit a pull request against the `master` branch.
   4. If your changes introduce or modify functionality, consider updating the README as well.
 - While there isn’t an official contribution guide or code of conduct yet, standard open source etiquette applies. Be constructive, respectful, and collaborative.
+
+---
 
 ## License
 
