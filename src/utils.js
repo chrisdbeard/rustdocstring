@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-const vscode = require('vscode');
-
+// @ts-nocheck
 /**
  * Scans forward in a VSCode text document from a given line to locate and extract
  * the full signature block of the next Rust item (e.g., function, struct, or enum).

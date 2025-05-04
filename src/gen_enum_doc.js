@@ -38,23 +38,23 @@ function generateEnumDoc(line) {
         if (unitMatch) {
             const variantName = unitMatch[1];
             docLines.push(`- \`${variantName}\` - \${${currentTabStop++}:Describe this variant.}`);
-            exampleLines.push(`    ${name}::${variantName} => \${${currentTabStop++}:handle_unit},`);
+            exampleLines.push(`    ${name}::${variantName} => handle_unit,`);
         } else if (tupleMatch) {
             const variantName = tupleMatch[1];
             const types = tupleMatch[2].split(',').map(t => t.trim());
             docLines.push(`- \`${variantName}(${types.join(', ')})\` - \${${currentTabStop++}:Describe this tuple variant.}`);
             const bindings = types.map((_, i) => `v${i}`).join(', ');
-            exampleLines.push(`    ${name}::${variantName}(${bindings}) => \${${currentTabStop++}:handle_tuple},`);
+            exampleLines.push(`    ${name}::${variantName}(${bindings}) => handle_tuple,`);
         } else if (fieldMatch) {
             const variantName = fieldMatch[1];
             const fields = fieldMatch[2].split(',').map(f => f.trim()).filter(Boolean);
             const fieldNames = fields.map(f => f.split(':')[0].trim());
             const fieldLine = `- \`${variantName} { ${fieldNames.join(', ')} }\` - \${${currentTabStop++}:Describe this field variant.}`;
             docLines.push(fieldLine);
-            exampleLines.push(`    ${name}::${variantName} { ${fieldNames.join(', ')} } => \${${currentTabStop++}:handle_fields},`);
+            exampleLines.push(`    ${name}::${variantName} { ${fieldNames.join(', ')} } => handle_fields,`);
         } else {
             docLines.push(`- \`${variant}\` - \${${currentTabStop++}:Describe this variant.}`);
-            exampleLines.push(`    ${name}::${variant} => \${${currentTabStop++}:handle_unknown},`);
+            exampleLines.push(`    ${name}::${variant} => handle_unknown,`);
         }
     }
 

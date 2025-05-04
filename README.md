@@ -1,16 +1,18 @@
 # RustDocString - VSCode Rust Docstring Generator
 
-![Stars](https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social)
-![version](https://img.shields.io/badge/version-0.0.1-green)
-![License](https://img.shields.io/github/license/chrisdbeard/rustdocstring)
-![Issues](https://img.shields.io/github/issues/chrisdbeard/rustdocstring)
-![VSCode](https://img.shields.io/badge/vscode-extension-blue?logo=visualstudiocode)
-![Rust](https://img.shields.io/badge/rust-supported-orange?logo=rust)
+<div style="text-align: center;">
+  <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
+  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/chrisdbeard/rustdocstring">
+  <img alt="VSCode" src="https://img.shields.io/badge/vscode-extension-blue?logo=visualstudiocode">
+  <img alt="Rust" src="https://img.shields.io/badge/rust-supported-orange?logo=rust">
+</div>
 
 > **RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
 
-**TODO add gif here.**
-![Demo](images/demo.gif)
+<div style="text-align: center;">
+  <img alt="Function Demo" src="images/example1.gif">
+  <p><i>See more demos below for unsafe functions, enums, enums with attributes, and structs</i></p>
+</div>
 
 ---
 
@@ -67,6 +69,10 @@ flowchart TD
 
 ### Function
 
+<div style="text-align: center;">
+  <img alt="Unsafe Extern Function Demo" src="images/example2.gif">
+</div>
+
 ```rust
 /// Describe this function.
 /// 
@@ -118,6 +124,10 @@ unsafe extern "C" fn unsafe_externed_function() {}
 
 ### Struct
 
+<div style="text-align: center;">
+  <img alt="Struct Demo" src="images/example5.gif">
+</div>
+
 *Ignores attribute/decorators.*
 
 ```rust
@@ -146,6 +156,11 @@ struct IpAddr {
 ```
 
 ### Enum
+
+<div style="text-align: center;">
+  <img alt="Enum Demo" src="images/example3.gif">
+  <img alt="Enum with Attributes Demo" src="images/example4.gif">
+</div>
 
 ```rust
 /// Describe this enum.
@@ -255,4 +270,4 @@ The source code is available on [GitHub](https://github.com/chrisdbeard/rustdocs
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
