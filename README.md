@@ -1,18 +1,19 @@
 # RustDocString - VSCode Rust Docstring Generator
 
-<div style="text-align: center;">
+<p align="center">
   <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
   <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/chrisdbeard/rustdocstring">
   <img alt="VSCode" src="https://img.shields.io/badge/vscode-extension-blue?logo=visualstudiocode">
   <img alt="Rust" src="https://img.shields.io/badge/rust-supported-orange?logo=rust">
-</div>
+</p>
 
-> **RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
+**RustDocString** is a Visual Studio Code extension that generates professional, structured Rust documentation comments with a single trigger. It intelligently detects function, struct, and enum declarations and produces ready-to-edit `///` doc blocks tailored to each item.
 
-<div style="text-align: center;">
+<p align="center">
   <img alt="Function Demo" src="images/example1.gif">
-  <p><i>See more demos below for unsafe functions, enums, enums with attributes, and structs</i></p>
-</div>
+</p>
+
+*See more demos below for unsafe functions, enums, enums with attributes, and structs under the [Example Output](#example-output) section.*
 
 ---
 
@@ -69,9 +70,9 @@ flowchart TD
 
 ### Function
 
-<div style="text-align: center;">
+<p align="center">
   <img alt="Unsafe Extern Function Demo" src="images/example2.gif">
-</div>
+</p>
 
 ```rust
 /// Describe this function.
@@ -124,9 +125,9 @@ unsafe extern "C" fn unsafe_externed_function() {}
 
 ### Struct
 
-<div style="text-align: center;">
+<p align="center">
   <img alt="Struct Demo" src="images/example5.gif">
-</div>
+</p>
 
 *Ignores attribute/decorators.*
 
@@ -157,10 +158,10 @@ struct IpAddr {
 
 ### Enum
 
-<div style="text-align: center;">
+<p align="center">
   <img alt="Enum Demo" src="images/example3.gif">
   <img alt="Enum with Attributes Demo" src="images/example4.gif">
-</div>
+</p>
 
 ```rust
 /// Describe this enum.
