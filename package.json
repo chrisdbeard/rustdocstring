@@ -2,7 +2,7 @@
   "name": "rustdocstring",
   "displayName": "Rust Doc String - Rust Docstring Generator",
   "description": "Automatically generate structured Rust doc comments (///) for functions, structs, and enums.",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "publisher": "ChrisBeard",
   "author": "Chris Beard",
   "icon": "./images/icon2.png",
