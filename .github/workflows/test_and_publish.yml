@@ -52,10 +52,10 @@ jobs:
         with:
           generate_release_notes: true
           token: ${{ secrets.GH_RELEASE_PAT }}
+          name: ${{ github.ref_name }}
           body: |
             # Summary
-            See the [CHANGELOG.md]((https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md))
-          name: $ {{ github.ref_name }}
+            See the [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md)
 
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
