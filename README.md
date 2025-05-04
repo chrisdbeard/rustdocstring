@@ -1,5 +1,7 @@
 <p align="center">
-  <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
+  <a href="https://github.com/chrisdbeard/rustdocstring">
+    <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
+  </a>
   <a href="https://marketplace.visualstudio.com/items?itemName=ChrisBeard.rustdocstring">
     <img alt="VSCode" src="https://img.shields.io/badge/vscode-extension-blue?logo=visualstudiocode">
   </a>
