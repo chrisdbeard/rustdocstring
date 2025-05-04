@@ -1,4 +1,4 @@
-name: Tests Rust Doc String on Multiple OS then Publish
+name: Tests Status
 
 on:
   push:
