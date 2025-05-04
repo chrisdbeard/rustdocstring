@@ -1,9 +1,11 @@
 <p align="center">
   <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
-  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/chrisdbeard/rustdocstring">
-  <img alt="Test" src="https://github.com/chrisdbeard/rustdocstring/actions/workflows/test_and_publish.yml/badge.svg">
   <a href="https://marketplace.visualstudio.com/items?itemName=ChrisBeard.rustdocstring">
     <img alt="VSCode" src="https://img.shields.io/badge/vscode-extension-blue?logo=visualstudiocode">
+  </a>
+  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/chrisdbeard/rustdocstring">
+  <a href="https://github.com/chrisdbeard/rustdocstring/actions">
+    <img alt="Test" src="https://github.com/chrisdbeard/rustdocstring/actions/workflows/test_and_publish.yml/badge.svg">
   </a>
   <img alt="Rust" src="https://img.shields.io/badge/rust-supported-orange?logo=rust">
 </p>
