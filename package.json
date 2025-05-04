@@ -59,7 +59,6 @@
     ]
   },
   "scripts": {
-    "release": "standard-version",
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "mocha \"./src/test/*.test.js\""
