@@ -8,7 +8,11 @@ const { findNextSignatureBlock } = require('../utils');
 describe('generateDocComment()', () => {
     it('generates doc for function', () => {
         const input = 'pub fn compute_sum(a: i32, b: i32) -> i32 {';
-        const output = generateDocComment(input);
+        const output = generateDocComment(input, {
+            includeExamples: true,
+            examplesOnlyForPublicOrExtern: false,
+            includeSafetyDetails: true
+          });
         assert.ok(output.includes('# Arguments'));
         assert.ok(output.includes('`a` (`i32`)'));
         assert.ok(output.includes('# Returns'));
@@ -17,7 +21,11 @@ describe('generateDocComment()', () => {
 
     it('generates doc for struct', () => {
         const input = 'pub struct Point { x: f64, y: f64 }';
-        const output = generateDocComment(input);
+        const output = generateDocComment(input, {
+            includeExamples: true,
+            examplesOnlyForPublicOrExtern: false,
+            includeSafetyDetails: true
+          });
         assert.ok(output.includes('# Fields'));
         assert.ok(output.includes('`x` (`f64`)'));
         assert.ok(output.includes('`y` (`f64`)'));
@@ -25,20 +33,28 @@ describe('generateDocComment()', () => {
 
     it('generates doc for enum', () => {
         const input = 'enum Color { Red, Green, Blue }';
-        const output = generateDocComment(input);
+        const output = generateDocComment(input, {
+            includeExamples: true,
+            examplesOnlyForPublicOrExtern: false,
+            includeSafetyDetails: true
+          });
         assert.ok(output.includes('# Variants'));
         assert.ok(output.includes('`Red`'));
     });
 
     it('returns null for unsupported input', () => {
-        assert.strictEqual(generateDocComment('trait SomeTrait {}'), null);
+        assert.strictEqual(generateDocComment('trait SomeTrait {}', {
+            includeExamples: true,
+            examplesOnlyForPublicOrExtern: false,
+            includeSafetyDetails: true
+          }), null);
     });
 });
 
 describe('generateFunctionDoc()', () => {
     it('includes async/unsafe modifiers in example block', () => {
         const input = 'pub async unsafe fn risky_call() -> Result<(), Box<dyn Error>> {';
-        const doc = generateFunctionDoc(input);
+        const doc = generateFunctionDoc(input, true, true, true);
         assert.ok(doc.includes('async {'));
         assert.ok(doc.includes('unsafe {'));
         assert.ok(doc.includes('# Safety'));
@@ -47,14 +63,14 @@ describe('generateFunctionDoc()', () => {
 
     it('handles simple function without return', () => {
         const input = 'fn hello(name: &str) {';
-        const doc = generateFunctionDoc(input);
+        const doc = generateFunctionDoc(input, true, true, true);
         assert.ok(doc.includes('`name` (`&str`)'));
         assert.ok(!doc.includes('# Returns'));
     });
 
     it('includes arguments and return section', () => {
         const input = 'pub fn add(a: i32, b: i32) -> i32 {';
-        const output = generateFunctionDoc(input);
+        const output = generateFunctionDoc(input, true, true, true);
         assert.ok(output.includes('# Arguments'), 'Missing arguments section');
         assert.ok(output.includes('`a` (`i32`)'));
         assert.ok(output.includes('`b` (`i32`)'));
@@ -64,7 +80,7 @@ describe('generateFunctionDoc()', () => {
 
     it('handles unsafe functions', () => {
         const input = 'pub unsafe fn access_raw(ptr: *const u8) -> u8 {';
-        const output = generateFunctionDoc(input);
+        const output = generateFunctionDoc(input, true, true, true);
         assert.ok(output.includes('# Safety'), 'Missing safety section');
         assert.ok(output.includes('**This function is `unsafe` because:**'));
         assert.ok(output.includes('Describe unsafe behavior'), 'Missing unsafe placeholder');
@@ -72,66 +88,84 @@ describe('generateFunctionDoc()', () => {
 
     it('handles extern functions', () => {
         const input = 'pub extern "C" fn c_func(x: i32) -> i32 {';
-        const output = generateFunctionDoc(input);
+        const output = generateFunctionDoc(input, true, true, true);
         assert.ok(output.includes('# Safety'), 'Missing safety section');
         assert.ok(output.includes('called in the correct program state to avoid UB'), 'Missing UB safety line');
     });
 
     it('handles async functions', () => {
         const input = 'pub async fn fetch_data() -> Result<String, Box<dyn Error>> {';
-        const output = generateFunctionDoc(input);
+        const output = generateFunctionDoc(input, true, true, true);
         assert.ok(output.includes('# Errors'), 'Missing errors section');
         assert.ok(output.includes('fetch_data().await'), 'Missing async example');
     });
 
     it('handles async unsafe extern functions', () => {
         const input = 'pub async unsafe extern "C" fn full_danger() -> Result<(), MyError> {';
-        const output = generateFunctionDoc(input);
+        const output = generateFunctionDoc(input, true, true, true);
         assert.ok(output.includes('# Safety'), 'Missing safety section');
         assert.ok(output.includes('unsafe { full_danger().await }'), 'Missing async unsafe example');
         assert.ok(output.includes('# Errors'), 'Missing errors section');
     });
 
     it('returns null on invalid input', () => {
-        const output = generateFunctionDoc('this is not a function');
+        const output = generateFunctionDoc('this is not a function', true, true, true);
         assert.strictEqual(output, null);
     });
 
 	it('handles pub(crate) visibility', () => {
         const input = 'pub(crate) fn public_function_in_crate() {';
-        const doc = generateFunctionDoc(input);
+        const doc = generateFunctionDoc(input, true, true, true);
         assert.ok(doc.includes('Describe this function'), 'Missing main description');
         assert.ok(doc.includes('# Examples'), 'Missing example section');
     });
 
     it('handles pub(in crate::testing) visibility', () => {
         const input = 'pub(in crate::testing) fn public_function_in_my_mod() {';
-        const doc = generateFunctionDoc(input);
+        const doc = generateFunctionDoc(input, true, true, true);
         assert.ok(doc.includes('Describe this function'), 'Missing main description');
     });
 
     it('handles pub(self) visibility', () => {
         const input = 'pub(self) fn public_function_in_nested() {';
-        const doc = generateFunctionDoc(input);
+        const doc = generateFunctionDoc(input, true, true, true);
         assert.ok(doc.includes('# Examples'), 'Missing example section');
     });
 
     it('handles pub(super) visibility', () => {
         const input = 'pub(super) fn public_function_in_super_mod() {';
-        const doc = generateFunctionDoc(input);
+        const doc = generateFunctionDoc(input, true, true, true);
         assert.ok(doc.includes('Describe this function'), 'Missing placeholder description');
+    });
+
+    it('respects includeExamples = false and hides examples section', () => {
+        const input = 'fn private_internal() {}';
+        const doc = generateFunctionDoc(input, false, false, true);
+        assert.ok(!doc.includes('# Examples'), 'Should not include example section for private function');
+    });
+
+    it('respects examplesOnlyForPublicOrExtern = true and hides examples for private function', () => {
+        const input = 'fn private_internal() {}';
+        const doc = generateFunctionDoc(input, true, true, true);
+        assert.ok(!doc.includes('# Examples'), 'Should not include example section for private function');
+    });
+    
+    it('includes examples when examplesOnlyForPublicOrExtern = true and function is pub', () => {
+        const input = 'pub fn exposed() {}';
+        const doc = generateFunctionDoc(input, true, true, true);
+        assert.ok(doc.includes('# Examples'), 'Should include example section for public function');
     });
 });
 
 describe('generateStructDoc()', () => {
     it('returns null for unit struct', () => {
-        assert.strictEqual(generateStructDoc('struct Empty;'), null);
-        assert.strictEqual(generateStructDoc('struct Nothing {}'), null);
+        assert.strictEqual(generateStructDoc('struct Empty;', true, true), null);
+        assert.strictEqual(generateStructDoc('struct Nothing {}', true, true), null);
     });
 
     it('documents tuple struct', () => {
         const input = 'struct Pair(i32, f64);';
-        const doc = generateStructDoc(input);
+        const doc = generateStructDoc(input, true, false);
         assert.ok(doc.includes('`field_0` (`i32`)'));
         assert.ok(doc.includes('`field_1` (`f64`)'));
         assert.ok(doc.includes('# Examples'));
@@ -146,7 +180,7 @@ describe('generateStructDoc()', () => {
                 p: i32, q: i32, r: i32, s: i32, t: i32
             }
         `;
-        const doc = generateStructDoc(input);
+        const doc = generateStructDoc(input, true, true);
         assert.ok(doc.includes('# Fields'), 'Missing fields section');
         assert.ok((doc.match(/- `/g) || []).length >= 20, 'Should document 20+ fields');
     });
@@ -161,7 +195,7 @@ describe('generateEnumDoc()', () => {
                 Write(String),
             }
         `;
-        const doc = generateEnumDoc(input);
+        const doc = generateEnumDoc(input, true, false);
         assert.ok(doc.includes('`Quit`'));
         assert.ok(doc.includes('`Move { x, y }`'));
         assert.ok(doc.includes('`Write(String)`'));
@@ -170,7 +204,7 @@ describe('generateEnumDoc()', () => {
 
     it('returns null for invalid enum', () => {
         const badEnum = 'enum NotValid';
-        assert.strictEqual(generateEnumDoc(badEnum), null);
+        assert.strictEqual(generateEnumDoc(badEnum, true, true), null);
     });
 
 	it('handles enum with mixed variant types', () => {
@@ -182,7 +216,7 @@ describe('generateEnumDoc()', () => {
 				ChangeColor(i32, i32, i32),
 			}
 		`;
-		const doc = generateEnumDoc(input);
+		const doc = generateEnumDoc(input, true, true);
 		assert.ok(doc.includes('# Variants'), 'Missing variants section');
 		assert.ok(doc.includes('- `Quit`'), 'Missing unit variant');
 		assert.ok(doc.includes('- `Move { x, y }`'), 'Missing struct variant');
@@ -197,7 +231,7 @@ describe('generateEnumDoc()', () => {
                 Field { a: i32, b: i32, c: i32, d: i32, e: i32 }
             }
         `;
-        const doc = generateEnumDoc(input);
+        const doc = generateEnumDoc(input, true, true);
         assert.ok(doc.includes('Tuple(u8, u16, u32, u64, usize)'), 'Missing tuple variant formatting');
         assert.ok(doc.includes('Field { a, b, c, d, e }'), 'Missing field variant formatting');
     });

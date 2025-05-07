@@ -9,6 +9,8 @@
  * Supports unit variants, tuple variants, and struct variants.
  *
  * @param {string} line - The line containing the Rust `enum` declaration with its body.
+ * @param {boolean} [includeExamples=true] - Whether to include the `# Examples` section.
+ * @param {boolean} [examplesOnlyForPublicOrExtern=false] - If true, include examples only for `pub` or `extern` functions.
  * @returns {string|null} A formatted doc comment block or null if parsing fails.
  */
 function generateEnumDoc(line, includeExamples, examplesOnlyForPublicOrExtern) {

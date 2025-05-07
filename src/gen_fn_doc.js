@@ -13,6 +13,9 @@
  * Tab stops (e.g., `${2:...}`) are included to support editor snippet expansion.
  *
  * @param {string} line - The normalized function signature, stripped of leading comments or extra lines.
+ * @param {boolean} [includeExamples=true] - Whether to include the `# Examples` section.
+ * @param {boolean} [examplesOnlyForPublicOrExtern=false] - If true, include examples only for `pub` or `extern` functions.
+ * @param {boolean} [includeSafetyDetails=false] - Whether to include extended safety rationale in the `# Safety` section.
  * @returns {string|null} The formatted Rust doc comment block as a string, or `null` if the input is not a valid function signature.
  */
 function generateFunctionDoc(line, includeExamples, examplesOnlyForPublicOrExtern, includeSafetyDetails) {

@@ -16,6 +16,8 @@
  * Tab stops (`${n:...}`) are inserted for editor snippet expansion.
  *
  * @param {string} line - A string containing the full struct declaration, including its body.
+ * @param {boolean} [includeExamples=true] - Whether to include the `# Examples` section.
+ * @param {boolean} [examplesOnlyForPublicOrExtern=false] - If true, include examples only for `pub` or `extern` functions.
  * @returns {string|null} The formatted doc comment block, or `null` if the input is not a valid documentable struct.
  */
 function generateStructDoc(line, includeExamples, examplesOnlyForPublicOrExtern) {

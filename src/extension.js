@@ -9,9 +9,17 @@ function activate(context) {
             if (!line.trim().endsWith('///')) return;
 
 			const signature = findNextSignatureBlock(document, position.line);
+            const config = vscode.workspace.getConfiguration('rustdocstring');
+            const includeExamples = config.get('includeExamples', true);
+            const examplesOnlyForPublicOrExtern = config.get('examplesOnlyForPublicOrExtern', false);
+            const includeSafetyDetails = config.get('includeSafetyDetails', false);
 
 			if (signature) {
-				const doc = generateDocComment(signature);
+				const doc = generateDocComment(signature, {
+                    includeExamples,
+                    examplesOnlyForPublicOrExtern,
+                    includeSafetyDetails
+                  });
 				if (!doc) return;
 				const item = new vscode.CompletionItem("Generate Rust Doc Comment");
 				item.insertText = new vscode.SnippetString(doc);

@@ -72,6 +72,8 @@ You can update these by searching for “Rust Doc String Generator” or "rustdo
 "rustdocstring.inludeSafetyDetails": false
 ```
 
+---
+
 ## How It Works
 
 RustDocString uses a signature parser (`utils.js`) to scan for the next Rust item and normalize its declaration. Then, depending on the item type:

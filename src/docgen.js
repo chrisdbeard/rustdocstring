@@ -1,20 +1,24 @@
 const { generateFunctionDoc } = require('./gen_fn_doc.js');
 const { generateStructDoc } = require('./gen_struct_doc.js');
 const { generateEnumDoc } = require('./gen_enum_doc.js');
-const vscode = require('vscode');
 
 /**
  * Dispatcher for generating Rust doc comments based on the type of code item.
  * Supports functions, structs, enums, and traits. Delegates to specialized handlers.
  *
  * @param {string} line - The normalized line of Rust code (a signature).
+ * @param {Object} options - Configuration options for doc generation.
+ * @param {boolean} [options.includeExamples=true] - Whether to include the `# Examples` section.
+ * @param {boolean} [options.examplesOnlyForPublicOrExtern=false] - Whether to include examples only for `pub` or `extern` items.
+ * @param {boolean} [options.includeSafetyDetails=false] - Whether to include extended safety guidance in the `# Safety` section.
  * @returns {string|null} - The formatted doc comment, or null if unsupported.
  */
-function generateDocComment(line) {
-    const config = vscode.workspace.getConfiguration('rustdocstring');
-    const includeExamples = config.get('includeExamples', true);
-    const examplesOnlyForPublicOrExtern = config.get('examplesOnlyForPublicOrExtern', false);
-    const includeSafetyDetails = config.get('includeSafetyDetails', false);
+function generateDocComment(line, options) {
+    const {
+        includeExamples = true,
+        examplesOnlyForPublicOrExtern = false,
+        includeSafetyDetails = false
+      } = options;
 
     const itemType = getRustItemType(line);
     if (!itemType) return null;
