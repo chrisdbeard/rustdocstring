@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [v0.1.2] - 2025-05-04
+
 - Extension settings
   - Added setting `rustdocstring.includeExamples`
   - Added setting `rustdocstring.examplesOnlyForPublicOrExtern`

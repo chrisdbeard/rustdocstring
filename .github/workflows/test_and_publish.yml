@@ -39,9 +39,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: master
+        # with:
+        #   fetch-depth: 0
+        #   ref: master
 
       - uses: actions/setup-node@v4
         with:
@@ -50,16 +50,16 @@ jobs:
 
       - run: npm ci
 
-      - name: Move [Unreleased] to new version in CHANGELOG
-        run: |
-          VERSION="${GITHUB_REF##*/}"
-          DATE=$(date +%Y-*m-%d)
-          sed -i.bak "0,/## \[Unreleased\]/s//## [Unreleased]\n\n## [${VERSION}] - ${DATE}/" CHANGELOG.md
-          rm CHANGELOG.md.bak
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git commit -am "chore: update CHANGELOG for ${VERSION}"
-          git push
+      # - name: Move [Unreleased] to new version in CHANGELOG
+      #   run: |
+      #     VERSION="${GITHUB_REF##*/}"
+      #     DATE=$(date +%Y-*m-%d)
+      #     sed -i.bak "0,/## \[Unreleased\]/s//## [Unreleased]\n\n## [${VERSION}] - ${DATE}/" CHANGELOG.md
+      #     rm CHANGELOG.md.bak
+      #     git config user.name "github-actions"
+      #     git config user.email "github-actions@github.com"
+      #     git commit -am "chore: update CHANGELOG for ${VERSION}"
+      #     git push
 
       - name: Github Release
         uses: softprops/action-gh-release@v1
