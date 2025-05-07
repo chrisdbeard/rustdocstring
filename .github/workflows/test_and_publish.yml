@@ -51,13 +51,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
-          token: ${{ secrets.GH_RELEASE_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ github.ref_name }}
           body: |
             # Summary
             See the [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md)
 
       - name: Publish to Visual Studio Marketplace
-        uses: HaaLeo/publish-vscode-extension@v1
-        with:
-          pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
+        run: vsce publish -p ${{ secrets.VS_MARKETPLACE_TOKEN }}
