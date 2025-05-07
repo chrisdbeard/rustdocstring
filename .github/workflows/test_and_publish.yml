@@ -71,5 +71,8 @@ jobs:
             # Summary
             See the [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md)
 
+      - name: Install VSCE CLI
+        run: npm install -g @vscode/vsce
+
       - name: Publish to Visual Studio Marketplace
         run: vsce publish -p ${{ secrets.VS_MARKETPLACE_TOKEN }}
