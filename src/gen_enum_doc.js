@@ -11,7 +11,10 @@
  * @param {string} line - The line containing the Rust `enum` declaration with its body.
  * @returns {string|null} A formatted doc comment block or null if parsing fails.
  */
-function generateEnumDoc(line) {
+function generateEnumDoc(line, includeExamples, examplesOnlyForPublicOrExtern) {
+    // Check if enum is public or externed.
+    const isPublicOrExtern = /\b(pub(\s*\([^)]*\)|\s+self|\s+super)?|extern(\s*"[^"]*")?)\b/.test(line);
+
     // Remove trailing comments and trim whitespace
     line = line.replace(/\/\/.*$/, '').trim();
 
@@ -60,12 +63,14 @@ function generateEnumDoc(line) {
 
     const defaultVariant = variants[0].split(/[({]/)[0].trim();
 
-    // Examples section
-    docLines.push(``, `# Examples`, ``, '```', `use crate::\${${currentTabStop++}:...};`, ``);
-    docLines.push(`let ${name.toLowerCase()} = ${name}::${defaultVariant};`); // Add function name.
-    docLines.push(...exampleLines);
-    docLines.push('}');
-    docLines.push('```'); // End the example section markdown code block
+    if (includeExamples && (!examplesOnlyForPublicOrExtern || isPublicOrExtern)) {
+        // Examples section
+        docLines.push(``, `# Examples`, ``, '```', `use crate::\${${currentTabStop++}:...};`, ``);
+        docLines.push(`let ${name.toLowerCase()} = ${name}::${defaultVariant};`); // Add function name.
+        docLines.push(...exampleLines);
+        docLines.push('}');
+        docLines.push('```'); // End the example section markdown code block
+    }
 
     // Format as Rust doc comment block
     return [docLines[0], ...docLines.slice(1).map(line => `/// ${line}`)].join('\n');

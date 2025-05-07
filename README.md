@@ -54,6 +54,24 @@
 
 ---
 
+## Configuration Options
+
+The Rust Doc String extension supports several settings to control the generated documentation style. These can be set in your `settings.json` or through the VSCode Settings UI.
+
+| Setting | Description | Default |
+|--------|-------------|---------|
+| `rustdocstring.includeExamples` | Include the `# Examples` section in generated doc comments. | `true` |
+| `rustdocstring.examplesOnlyForPublicOrExtern` | Only include examples for functions marked `pub` or `extern`. Requires `includeExamples` to be enabled. | `false` |
+| `rustdocstring.inludeSafetyDetails` | Include detailed safety requirements in the `# Safety` section for `unsafe` or `extern` functions. | `false` |
+
+You can update these by searching for “Rust Doc String Generator” or "rustdocstring" in the VSCode Settings UI or by adding them to your `settings.json`:
+
+```json
+"rustdocstring.includeExamples": true,
+"rustdocstring.examplesOnlyForPublicOrExtern": false,
+"rustdocstring.inludeSafetyDetails": false
+```
+
 ## How It Works
 
 RustDocString uses a signature parser (`utils.js`) to scan for the next Rust item and normalize its declaration. Then, depending on the item type:

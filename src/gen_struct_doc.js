@@ -18,7 +18,10 @@
  * @param {string} line - A string containing the full struct declaration, including its body.
  * @returns {string|null} The formatted doc comment block, or `null` if the input is not a valid documentable struct.
  */
-function generateStructDoc(line) {
+function generateStructDoc(line, includeExamples, examplesOnlyForPublicOrExtern) {
+    // Check if struct is public or externed.
+    const isPublicOrExtern = /\b(pub(\s*\([^)]*\)|\s+self|\s+super)?|extern(\s*"[^"]*")?)\b/.test(line);
+
     // Reject unit structs (single struct no fields)
     if (/struct\s+\w+\s*(;|\{\})/.test(line)) return null; // Struct ends with ';' or '{}'
 
@@ -60,25 +63,27 @@ function generateStructDoc(line) {
         docLines.push(``, `# Fields`, ``, ...fields);
     }
 
-    // Examples section
-    docLines.push(``, `# Examples`, ``, '```', `use crate::\${${currentTabStop++}:...};`, ``);
+    if (includeExamples && (!examplesOnlyForPublicOrExtern || isPublicOrExtern)) {
+        // Examples section
+        docLines.push(``, `# Examples`, ``, '```', `use crate::\${${currentTabStop++}:...};`, ``);
 
-    if (body.startsWith('{')) {
-        // Field-style struct
-        docLines.push(`let s = ${name} {`);
-        for (const field of fields) {
-            const fieldName = field.match(/`([^`]+)`/)[1]; // extract field name
-            docLines.push(`    ${fieldName}: value,`);
+        if (body.startsWith('{')) {
+            // Field-style struct
+            docLines.push(`let s = ${name} {`);
+            for (const field of fields) {
+                const fieldName = field.match(/`([^`]+)`/)[1]; // extract field name
+                docLines.push(`    ${fieldName}: value,`);
+            }
+            docLines.push(`};`);
+        } else if (body.startsWith('(')) {
+            // Tuple-style struct
+            const types = body.slice(1, -1).split(',').map(t => t.trim()).filter(Boolean);
+            const tupleArgs = types.map(() => `value`).join(', ');
+            docLines.push(`let s = ${name}(${tupleArgs});`);
         }
-        docLines.push(`};`);
-    } else if (body.startsWith('(')) {
-        // Tuple-style struct
-        const types = body.slice(1, -1).split(',').map(t => t.trim()).filter(Boolean);
-        const tupleArgs = types.map(() => `value`).join(', ');
-        docLines.push(`let s = ${name}(${tupleArgs});`);
-    }
 
-    docLines.push('```'); // End the example section markdown code block
+        docLines.push('```'); // End the example section markdown code block
+    }
 
     // Format as Rust doc comment block
     return [docLines[0], ...docLines.slice(1).map(line => `/// ${line}`)].join('\n');

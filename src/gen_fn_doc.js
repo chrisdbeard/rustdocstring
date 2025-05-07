@@ -15,7 +15,10 @@
  * @param {string} line - The normalized function signature, stripped of leading comments or extra lines.
  * @returns {string|null} The formatted Rust doc comment block as a string, or `null` if the input is not a valid function signature.
  */
-function generateFunctionDoc(line) {
+function generateFunctionDoc(line, includeExamples, examplesOnlyForPublicOrExtern, includeSafetyDetails) {
+    // Check if function is public or externed.
+    const isPublicOrExtern = /\b(pub(\s*\([^)]*\)|\s+self|\s+super)?|extern(\s*"[^"]*")?)\b/.test(line);
+
     // Strip pub, pub(crate), pub(in ...), pub(self), pub(super)
     const cleanLine = line.replace(/pub(\s*\([^)]*\)|\s+self|\s+super)?\s+/, '');
 
@@ -73,10 +76,13 @@ function generateFunctionDoc(line) {
     if (hasUnsafe || hasExtern) {
         // Check if unsafe and extern
         docLines.push(``, `# Safety`, ``);
-        docLines.push(`- **The caller must ensure that:**`);
-        docLines.push(`  - Any internal state or memory accessed by this function is in a valid state.`);
-        docLines.push(`  - Preconditions specific to this function's logic are satisfied.`);
-        docLines.push(`  - This function is only called in the correct program state to avoid UB.`);
+
+        if (includeSafetyDetails) {
+            docLines.push(`- **The caller must ensure that:**`);
+            docLines.push(`  - Any internal state or memory accessed by this function is in a valid state.`);
+            docLines.push(`  - Preconditions specific to this function's logic are satisfied.`);
+            docLines.push(`  - This function is only called in the correct program state to avoid UB.`);
+        }
 
         if (hasUnsafe) {
             // Check if also unsafe
@@ -94,12 +100,12 @@ function generateFunctionDoc(line) {
         docLines.push(`\${${currentTabStop++}:Describe possible errors.}`);
     }
 
-    // TODO Make editable configuration to include example sections as a checkbox in the settings.
-
-    // Examples section
-    const { exampleLines, nextTabStop } = createExampleSection(name, currentTabStop, hasAsync, hasUnsafe);
-    docLines.push(...exampleLines); // add example section
-    currentTabStop = nextTabStop; // Update counter
+    if (includeExamples && (!examplesOnlyForPublicOrExtern || isPublicOrExtern)) {
+        // Examples section
+        const { exampleLines, nextTabStop } = createExampleSection(name, currentTabStop, hasAsync, hasUnsafe);
+        docLines.push(...exampleLines); // add example section
+        currentTabStop = nextTabStop; // Update counter
+    }
 
     // Prefix all lines with Rust doc syntax (`///`) and return as a snippet string
     return [

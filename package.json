@@ -56,7 +56,28 @@
           "Rust"
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Rust Doc String Generator",
+      "properties": {
+        "rustdocstring.includeExamples": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include the '# Examples' section in generated Rust documentation."
+        },
+        "rustdocstring.examplesOnlyForPublicOrExtern": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only include examples for functions marked 'pub' or 'extern'.",
+          "markdownDescription": "This applies only if `includeExamples` is enabled."
+        },
+        "rustdocstring.includeSafetyDetails": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include extended detailed safety requirments in the '# Safety' section for unsafe or extern functions."
+        }
+      }
+    }
   },
   "scripts": {
     "lint": "eslint .",

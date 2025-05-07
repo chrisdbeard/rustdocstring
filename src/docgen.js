@@ -1,6 +1,7 @@
 const { generateFunctionDoc } = require('./gen_fn_doc.js');
 const { generateStructDoc } = require('./gen_struct_doc.js');
 const { generateEnumDoc } = require('./gen_enum_doc.js');
+const vscode = require('vscode');
 
 /**
  * Dispatcher for generating Rust doc comments based on the type of code item.
@@ -10,20 +11,25 @@ const { generateEnumDoc } = require('./gen_enum_doc.js');
  * @returns {string|null} - The formatted doc comment, or null if unsupported.
  */
 function generateDocComment(line) {
+    const config = vscode.workspace.getConfiguration('rustdocstring');
+    const includeExamples = config.get('includeExamples', true);
+    const examplesOnlyForPublicOrExtern = config.get('examplesOnlyForPublicOrExtern', false);
+    const includeSafetyDetails = config.get('includeSafetyDetails', false);
+
     const itemType = getRustItemType(line);
     if (!itemType) return null;
 
     switch (itemType) {
         case 'function':
-            return generateFunctionDoc(line);
+            return generateFunctionDoc(line, includeExamples, examplesOnlyForPublicOrExtern, includeSafetyDetails);
         case 'struct':
-            return generateStructDoc(line);
+            return generateStructDoc(line, includeExamples, examplesOnlyForPublicOrExtern);
         case 'enum':
-            return generateEnumDoc(line);
+            return generateEnumDoc(line, includeExamples, examplesOnlyForPublicOrExtern);
         // case 'trait': // TODO
-        //     return generateTraitDoc(line);
+        //     return generateTraitDoc(line, includeExamples);
         // case 'union': // TODO
-        //     return generateUnionDoc(line);
+        //     return generateUnionDoc(line, includeExamples);
         default:
             return null;
     }
