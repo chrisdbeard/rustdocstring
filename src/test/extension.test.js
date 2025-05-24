@@ -78,6 +78,32 @@ describe('generateFunctionDoc()', () => {
         assert.ok(output.includes('`i32`'));
     });
 
+    it('handles generic parameters before arguments', () => {
+        const input = 'pub fn write_display<W: FmtWrite>(&self, w: &mut W) -> std::fmt::Result';
+        const output = generateFunctionDoc(input, false, false, false);
+        
+        assert.ok(output.includes('`w` (`&mut W`)'), 'Missing w parameter with generic type');
+        assert.ok(output.includes('&self'), 'Missing &self parameter');
+        assert.ok(output.includes('# Returns'), 'Missing return section');
+        assert.ok(output.includes('`std::fmt::Result`'), 'Missing return type');
+    });
+
+    it('handles nested generic types in arguments', () => {
+        const input = 'fn test(map: HashMap<String, Vec<u8>>)';
+        const output = generateFunctionDoc(input, false, false, false);
+
+        assert.ok(output.includes('# Arguments'), 'Missing arguments section');
+        assert.ok(output.includes('`map` (`HashMap<String, Vec<u8>>`)'), 'Missing correct nested generic param');
+    });
+
+    it('handles multiple complex arguments with nested generics', () => {
+        const input = 'fn process(data: Option<Result<u8, E>>, map: HashMap<String, Vec<u8>>)';
+        const output = generateFunctionDoc(input, false, false, false);
+
+        assert.ok(output.includes('`data` (`Option<Result<u8, E>>`)'), 'Missing complex param `data`');
+        assert.ok(output.includes('`map` (`HashMap<String, Vec<u8>>`)'), 'Missing complex param `map`');
+    });
+
     it('handles unsafe functions', () => {
         const input = 'pub unsafe fn access_raw(ptr: *const u8) -> u8 {';
         const output = generateFunctionDoc(input, true, true, true);

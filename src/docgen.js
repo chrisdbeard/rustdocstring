@@ -46,7 +46,7 @@ function generateDocComment(line, options) {
  * @returns {"function"|"struct"|"enum"|null} - The detected item type.
  */
 function getRustItemType(line) {
-    if (/fn\s+\w+\s*\(/.test(line)) return 'function';
+    if (/fn\s+\w+\s*[(<]/.test(line)) return 'function';
     if (/struct\s+\w+/.test(line)) return 'struct';
     if (/enum\s+\w+/.test(line)) return 'enum';
     // if (/trait\s+\w+/.test(line)) return 'trait'; // TODO

@@ -35,11 +35,11 @@ function generateFunctionDoc(line, includeExamples, examplesOnlyForPublicOrExter
     const hasExtern = !!modifierMatch?.[3];
 
     // Attempt to match a Rust function signature.
-    const fnMatch = cleanLine.match(/fn\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*([^;{]+))?/);
+    const fnMatch = cleanLine.match(/fn\s+(\w+)\s*(<[^>]*>)?\s*\(([^)]*)\)\s*(?:->\s*([^;{]+))?/);
     if (!fnMatch) return null; // If no match, return nothing (unsupported line)
 
     // Destructure the match results: function name, arguments, and optional return type.
-    const [, name, args, returnType] = fnMatch;
+    const [, name, _generics, args, returnType] = fnMatch;
 
     // Gets the return type.
     const cleanedReturn = returnType ? returnType.trim() : null;
@@ -47,15 +47,10 @@ function generateFunctionDoc(line, includeExamples, examplesOnlyForPublicOrExter
     // Sets the tab stop count for the parameter. Description is always 1.
     let currentTabStop = 2;
 
-    // Parse and format each function argument into a markdown line with snippet placeholder.
-    const params = args
-        .split(',')
-        .map(p => p.trim())
-        .filter(Boolean) // Remove empty strings
-        .map(param => {
-            const [argName, argType] = param.split(':').map(s => s.trim());
-            return `- \`${argName}\` (\`${argType}\`) - \${${currentTabStop++}:Describe this parameter.}`;
-        });
+    const params = splitFunctionArgs(args).map(p => p.trim()).filter(Boolean).map(param => {
+        const [argName, argType] = param.split(':').map(s => s.trim());
+        return `- \`${argName}\` (\`${argType}\`) - \${${currentTabStop++}:Describe this parameter.}`;
+    });
 
     // Build the full documentation block line by line.
     const docLines = [];
@@ -115,6 +110,47 @@ function generateFunctionDoc(line, includeExamples, examplesOnlyForPublicOrExter
         docLines[0], // First line is already preceded by `///` in the editor, skip it
         ...docLines.slice(1).map(line => `/// ${line}`)
     ].join('\n');
+}
+
+/**
+ * Splits a Rust function's argument list into individual parameters,
+ * correctly handling nested generics and parentheses.
+ *
+ * This function is necessary because Rust function arguments may contain nested
+ * angle brackets (e.g., `HashMap<String, Vec<u8>>`) or tuples
+ * (e.g., `(i32, f64)`), which would cause a naive `.split(',')` to fail.
+ *
+ * It performs a linear scan of the argument string, tracking nesting levels of
+ * `< >` and `( )`, and only splits on commas that are outside these constructs.
+ *
+ * @param {string} argString - The comma-separated argument list from a Rust function signature.
+ * @returns {string[]} - An array of individual argument strings.
+ *
+ * @example
+ * splitFunctionArgs("x: u32, y: HashMap<String, Vec<u8>>")
+ * // returns: ["x: u32", "y: HashMap<String, Vec<u8>>"]
+ */
+function splitFunctionArgs(argString) {
+    const args = [];
+    let current = '';
+    let angle = 0, paren = 0;
+
+    for (let char of argString) {
+        if (char === '<') angle++;
+        else if (char === '>') angle--;
+        else if (char === '(') paren++;
+        else if (char === ')') paren--;
+
+        if (char === ',' && angle === 0 && paren === 0) {
+            args.push(current.trim());
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+
+    if (current.trim()) args.push(current.trim());
+    return args;
 }
 
 /**
