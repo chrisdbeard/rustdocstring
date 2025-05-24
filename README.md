@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://marketplace.visualstudio.com/items?itemName=ChrisBeard.rustdocstring">
-    <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/ChrisBeard.rustdocstring?labelColor=1d8ccb">
+    <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/ChrisBeard.rustdocstring?">
   </a>
   <a href="https://github.com/chrisdbeard/rustdocstring">
     <img alt="Stars" src="https://img.shields.io/github/stars/chrisdbeard/rustdocstring?style=social">
